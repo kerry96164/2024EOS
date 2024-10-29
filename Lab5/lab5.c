@@ -7,18 +7,18 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>  // sockaddr 相關
 #include <signal.h>   // signal()
+#include <unistd.h> // dup2() close()
 
-pid_t childpid; /* variable to store the child's pid */
+pid_t pid; /* variable to store the child's pid */
 unsigned short port; // 0~65535
 int sockfd;
 
-void handler(int signum);
-void childfunc(void);
-void parentfunc(void);
+void sigchld_handler(int signum);
+void sigint_handler(int signum);
 
 int main(int argc, char *argv[]) { 
-    signal(SIGINT, handler);
-    signal(SIGCHLD, handler);
+    signal(SIGINT, sigint_handler); // SIGINT： Ctrl-C
+    signal(SIGCHLD, sigchld_handler); // when child process end
 
     if(argc != 2){
         printf(" Usage: lab5 <Port>");
@@ -43,18 +43,20 @@ int main(int argc, char *argv[]) {
         .sin_port = htons(port)          // 綁定 port 4444 (unsigned short int)
     };
     // Bind
+    int yes = 1;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)); // Force using socket address already in use
     if (bind(sockfd, (const struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
         printf("Bind socket failed!\n");
         perror("bind");
         close(sockfd);
-        exit(0);
+        exit(-1);
     }
     // Listen
     if (listen(sockfd, 5) == -1) {
         printf("socket %d listen failed!\n", sockfd);
         perror("listen");
         close(sockfd);
-        exit(0);
+        exit(-1);
     }
     printf("server [%s:%d] --- ready\n", 
         inet_ntoa(serverAddr.sin_addr), ntohs(serverAddr.sin_port));
@@ -62,35 +64,37 @@ int main(int argc, char *argv[]) {
     // Accept Connect and fork
     while(1){
         reply_sockfd = accept(sockfd, (struct sockaddr *)&clientAddr, &client_len);
-         
-
-    }
-    /* now create new process */ 
-    childpid = fork();
-    if (childpid >= 0) { /* fork succeeded */ 
-        if (childpid == 0) { /* fork() returns 0 to the child process */ 
-            childfunc(); 
-        } else { /* fork() returns new pid to the parent process */ 
-            parentfunc(); 
-        } 
-    } else { /* fork returns -1 on failure */ 
-        perror("fork"); /* display error message */ 
-        exit(0);  
+        /*printf("client [%s:%d] --- connect\n", 
+                inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));*/
+        /* now create new process */
+        pid = fork();
+        if (pid == 0){   /* fork() returns 0 to the child process */
+            close(sockfd);
+            dup2(reply_sockfd, STDOUT_FILENO);
+            close(reply_sockfd); // can close the original after it's duplicated
+            // execlp("echo","echo","123",NULL);
+            execlp("sl","sl","-l",NULL); // Stream Train
+            exit(0);
+        }
+        else if(pid > 0){          /* fork() returns new pid to the parent process */
+            close(reply_sockfd);
+            printf("Train ID: %d\n",pid);
+        }
+        else {                     /* fork returns -1 on failure */ 
+            perror("fork"); /* display error message */ 
+            exit(-1); 
+        }
     }
     return 0; 
 } 
 
-void handler(int signum) {
-   while (waitpid(-1, NULL, WNOHANG) > 0);
-   close(sockfd);
+// child end
+void sigchld_handler(int signum) {
+   //while (waitpid(-1, NULL, WNOHANG) > 0);
 }
 
-void childfunc(void){ 
-
-    exit(0); /* child exits with user-provided return code */ 
+// SIGINT： Ctrl-C
+void sigint_handler(int signum) {
+    close(sockfd);
+    exit(-1);
 }
-
-void parentfunc(void) {   
-
-    exit(0);  /* parent exits */      
-} 
