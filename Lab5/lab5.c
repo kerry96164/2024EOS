@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 
 // child end
 void sigchld_handler(int signum) {
-   //while (waitpid(-1, NULL, WNOHANG) > 0);
+   while (waitpid(-1, NULL, WNOHANG) > 0);
 }
 
 // SIGINT： Ctrl-C
