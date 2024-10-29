@@ -28,3 +28,5 @@ do
 done
 
 tmux -2 attach-session -t $SESSION
+
+make clean

@@ -61,8 +61,8 @@ int main(int argc, char *argv[]) {
     printf("server [%s:%d] --- ready\n", 
         inet_ntoa(serverAddr.sin_addr), ntohs(serverAddr.sin_port));
 
-    // Accept Connect and fork
     while(1){
+        // Accept Connect and fork
         reply_sockfd = accept(sockfd, (struct sockaddr *)&clientAddr, &client_len);
         /*printf("client [%s:%d] --- connect\n", 
                 inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));*/
