@@ -6,7 +6,7 @@
 #include <unistd.h>     /* Symbolic Constants */ 
 #include <sys/socket.h>
 #include <arpa/inet.h>  // sockaddr 相關
-
+#include <signal.h>   // signal()
 
 pid_t childpid; /* variable to store the child's pid */
 unsigned short port; // 0~65535
@@ -18,6 +18,8 @@ void parentfunc(void);
 
 int main(int argc, char *argv[]) { 
     signal(SIGINT, handler);
+    signal(SIGCHLD, handler);
+
     if(argc != 2){
         printf(" Usage: lab5 <Port>");
         return -1;
@@ -59,7 +61,8 @@ int main(int argc, char *argv[]) {
 
     // Accept Connect and fork
     while(1){
-        reply_sockfd = accept(sockfd, (struct sockaddr *)&clientAddr, &client_len); 
+        reply_sockfd = accept(sockfd, (struct sockaddr *)&clientAddr, &client_len);
+         
 
     }
     /* now create new process */ 
