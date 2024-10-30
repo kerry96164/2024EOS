@@ -22,11 +22,11 @@ x86_clean:
 	rm -f reader
 
 RPI_build:
-	sudo make ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C ~/2024EOS/linux-bcm2711_defconfig M=$(PWD) modules
+	sudo make ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C ../linux-bcm2711_defconfig M=$(PWD) modules
 	$(CROSS_COMPILE)gcc writer.c -o writer
 	$(CROSS_COMPILE)gcc reader.c -o reader
 RPI_clean:
-	sudo make ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C ~/2024EOS/linux-bcm2711_defconfig M=$(PWD) clean
+	sudo make ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C ../linux-bcm2711_defconfig M=$(PWD) clean
 	rm -f writer
 	rm -f reader
 
