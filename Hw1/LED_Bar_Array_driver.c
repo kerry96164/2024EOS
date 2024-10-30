@@ -21,7 +21,6 @@ static struct gpio leds_gpios[SIZE] = {
     { 25, GPIOF_OUT_INIT_LOW, "LED_8"}
 };
 
-int data = 0;
 dev_t dev = 0; 					// device number (包含major&minor)
 static struct cdev LED_cdev;	// character device
 static struct class *dev_class;	// device class
@@ -43,20 +42,19 @@ static ssize_t LED_Bar_read(struct file *fp, char *buf, size_t count, loff_t *fp
 } 
 
 // user to driver
-static ssize_t LED4_write(struct file *fp,const char *buf, size_t count, loff_t *fpos) {
+static ssize_t LED_Bar_write(struct file *fp,const char *buf, size_t count, loff_t *fpos) {
 	char *rec_buf = kzalloc(sizeof(char),GFP_KERNEL);
-	int ret = 0;
+	int ret = 0, data = 0;
 	pr_info("%s: %s: call write\n", __FILE__, __func__);
 	if( (ret = copy_from_user(rec_buf, buf, sizeof(buf))) != 0){
 		pr_err("%s: %s: %d bytes have NOT been copied from user\n", __FILE__, __func__, ret);
 		return -EFAULT; //Bad address
 	}
-	// char to int 0~9
-	if (*rec_buf >= '0' && *rec_buf <= '9'){
-		data = *rec_buf - '0';
-	}else{data = 0;} 
+	// char 0~255
+    if (data > 255 || data < 0){
+        pr_warn("%s: %s: Wrote data from user %d are overflow (!=0~255)\n", __FILE__, __func__, data);
+    } 
 	pr_info("%s: %s: write: %d\n", __FILE__, __func__, data);
-	// binary to char list
     for(int i = 0; i < SIZE ; i++) {
         if(data % 2){
 			gpio_set_value(leds_gpios[SIZE-1-i].gpio, 1);
@@ -71,29 +69,29 @@ static ssize_t LED4_write(struct file *fp,const char *buf, size_t count, loff_t 
 	return count;
 }
 
-static int LED4_open(struct inode *inode, struct file *fp) { 
-	printk("[LED driver] call open\n"); 
+static int LED_Bar_open(struct inode *inode, struct file *fp) { 
+	printk("[LED Bar driver] call open\n"); 
 	return 0; 
 }
-static int LED4_release(struct inode *inode, struct file *fp) { 
-	printk("[LED driver] call release\n");
+static int LED_Bar_release(struct inode *inode, struct file *fp) { 
+	printk("[LED Bar driver] call release\n");
 	for(int i=0; i < SIZE; i++){
 		gpio_set_value(leds_gpios[i].gpio, 0);
 	}
 	return 0; 
 }
 
-struct file_operations LED4_fops = { 
+struct file_operations LED_Bar_fops = { 
 	read:  LED_Bar_read, 
-	write: LED4_write, 
-	open:  LED4_open, 
-	release: LED4_release
+	write: LED_Bar_write, 
+	open:  LED_Bar_open, 
+	release: LED_Bar_release
 };
  
-#define DEVICE_NAME "LED_Arrary4"
+#define DEVICE_NAME "LED_Bar_Arrary"
 
 /* Module Init function */ 
-static int LED4_init(void) {
+static int LED_Bar_init(void) {
 
 	pr_info("%s: %s: call init\n", __FILE__, __func__);
     
@@ -106,7 +104,7 @@ static int LED4_init(void) {
     pr_info("%s: %s: Major = %d Minor = %d \n", __FILE__, __func__,MAJOR(dev), MINOR(dev));
     /*Creating cdev structure*/ 
 	// 將cdev的ops指標指到fops
-	cdev_init(&LED_cdev,&LED4_fops);
+	cdev_init(&LED_cdev,&LED_Bar_fops);
 
     /*Adding character device to the system*/
 	if((cdev_add(&LED_cdev,dev,1)) < 0){ 
@@ -115,13 +113,13 @@ static int LED4_init(void) {
 	}
 
     /*Creating struct class*/ 
-	if((dev_class = class_create(THIS_MODULE,"LED_class")) == NULL){ 
+	if((dev_class = class_create(THIS_MODULE,"LED_Bar_class")) == NULL){ 
 		pr_err("%s: %s: Cannot create the struct class\n", __FILE__, __func__);
 		goto r_class; 
 	} 
     
 	/*Creating device*/ 
-	if((device_create(dev_class,NULL,dev,NULL,"LED_device")) == NULL){ 
+	if((device_create(dev_class,NULL,dev,NULL,"LED_Bar_Array_device")) == NULL){ 
 		pr_err("%s: %s: Cannot create the Device\n", __FILE__, __func__);
 		goto r_device; 
 	} 
@@ -158,7 +156,7 @@ static int LED4_init(void) {
 	return -1;
 } 
 
-static void LED4_exit(void) {
+static void LED_Bar_exit(void) {
     pr_info("%s: %s: call exit\n", __FILE__, __func__);
 	// Release the GPIO
 	gpio_free_array(leds_gpios, SIZE); 
@@ -169,8 +167,8 @@ static void LED4_exit(void) {
 	pr_info("%s: %s: Device Driver Remove...Done!!\n", __FILE__, __func__); 
 } 
 
-module_init(LED4_init); 
-module_exit(LED4_exit);
+module_init(LED_Bar_init); 
+module_exit(LED_Bar_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Kerry(YuKai Lu) (KerryYK.Lu@gmail.com)");
