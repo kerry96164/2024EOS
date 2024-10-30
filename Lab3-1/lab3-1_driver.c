@@ -129,7 +129,7 @@ static int LED4_init(void) {
 	// Verify whether the GPIO is valid or not.
 	/*     
 	for (int i = 0; i < SIZE; i++){
-        if(gpio_is_valid(leds_gpios[i].gpio)){
+        if(!gpio_is_valid(leds_gpios[i].gpio)){
 			pr_err("%s: %s: GPIO %d is not valid.\n", __FILE__, __func__, leds_gpios[i].gpio);
 			goto r_device;
 		}

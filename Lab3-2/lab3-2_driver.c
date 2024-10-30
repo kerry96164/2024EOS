@@ -148,7 +148,7 @@ static int LED7_init(void) {
 	// Verify whether the GPIO is valid or not.
 	/*     
 	for (int i = 0; i < SIZE; i++){
-        if(gpio_is_valid(led7_gpios[i].gpio)){
+        if(!gpio_is_valid(led7_gpios[i].gpio)){
 			pr_err("%s: %s: GPIO %d is not valid.\n", __FILE__, __func__, led7_gpios[i].gpio);
 			goto r_device;
 		}
