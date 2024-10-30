@@ -1,5 +1,6 @@
 #include <stdio.h>      // fprintf(), perror()
 #include <stdlib.h>     // exit(), atoi(), system()
+#include <stdlib.h>     // exit(), atoi(), system()
 #include <unistd.h>     // read(), write(), close()
 #include <string.h>     // strlen()
 #include <fcntl.h>      // open()
@@ -8,9 +9,29 @@
 #include <sys/wait.h>   // Wait for Process Termination
 
 #define RPI
+#include <sys/wait.h>   // Wait for Process Termination
+
+#define RPI
 
 #define LED_Bar_Array_file "/dev/LED_Bar_Array_device"
 #define LED_7_seg_file "/dev/LED_7_seg_device"
+#define NUM_SHOP 3
+#define NUM_FOOD 2
+
+typedef struct {
+    char item[20];
+    int  price;
+} food_t;
+
+typedef struct {
+    char name[20];
+    int  distance;
+    food_t menu[NUM_FOOD];
+} shop_t;
+
+shop_t shop[NUM_SHOP];
+
+int bar_array_file = -1, seven_seg_file = -1;
 #define NUM_SHOP 3
 #define NUM_FOOD 2
 
@@ -43,9 +64,20 @@ void order_menu(int s);
 void confirm_order(int total,int dist);
 void led_show_price(int price);
 void led_show_dist(int dist);
+void init_data();
+void deliverySystem();
+
+void show_shop_list();
+void order_shop();
+void order_menu(int s);
+void confirm_order(int total,int dist);
+void led_show_price(int price);
+void led_show_dist(int dist);
 
 int main(int argc, char* argv[]){
     signal(SIGINT, sigint_handler); // SIGINT： Ctrl-C
+
+#ifdef RPI
 
 #ifdef RPI
     if (atexit(close_device) != 0) {
@@ -58,10 +90,17 @@ int main(int argc, char* argv[]){
 
     deliverySystem(); 
 
+#endif
+    init_data();
+
+    deliverySystem(); 
+
     return 0;
 }
 #ifdef RPI
+#ifdef RPI
 void LED_Bar_Array_writer(char data){
+    // 0b00000000 0~255
     // 0b00000000 0~255
     if(write(bar_array_file, &data, 1) == -1) {
         perror("Error writing to LED Bar Array");
@@ -69,6 +108,9 @@ void LED_Bar_Array_writer(char data){
     }
 }
 void LED_7_seg_writer(char data){
+    // 0~9 : 0~9 no dp
+    // 10~19 : 0~9 with dp
+    // 20 : space 
     // 0~9 : 0~9 no dp
     // 10~19 : 0~9 with dp
     // 20 : space 
@@ -101,7 +143,17 @@ void close_device(){
         seven_seg_file = -1;
     }
     //printf("Exiting program safely...Succsee\n");
+    //printf("Exiting program safely...Succsee\n");
 }
+
+#else
+void LED_Bar_Array_writer(char data){
+    printf("Bar: %d\n", data);
+}
+void LED_7_seg_writer(char data){
+    printf("7seg: %d\n", data);
+}
+#endif
 
 #else
 void LED_Bar_Array_writer(char data){
