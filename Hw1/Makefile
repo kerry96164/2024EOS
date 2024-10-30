@@ -2,7 +2,7 @@ ARCH?=arm64
 CROSS_COMPILE?=aarch64-linux-gnu-
 obj-m += LED_Bar_Array_driver.o
 obj-m += LED_7_seg_driver.o
-NAME := hw1
+NAME := Hw1
 
 all: RPI_build
 clean: RPI_clean
@@ -23,10 +23,13 @@ zip: all
 	mkdir $(NAME)
 	cp LED_Bar_Array_driver.ko $(NAME)
 	cp LED_7_seg_driver.ko $(NAME)
+	cp hw1.c $(NAME)
 	cp hw1 $(NAME)
 	cp Makefile $(NAME)
+	cp RUN.sh $(NAME)
 	cp LED_Bar_Array_driver.c $(NAME)
-	cp LED_Bar_Array_driver.c $(NAME)
+	cp LED_7_seg_driver.c $(NAME)
+	
 	zip -r $(NAME).zip $(NAME)
 	rm -rf $(NAME)
 	make clean

@@ -51,6 +51,7 @@ static ssize_t LED_Bar_write(struct file *fp,const char *buf, size_t count, loff
 		return -EFAULT; //Bad address
 	}
 	// char 0~255
+	data = *rec_buf;
     if (data > 255 || data < 0){
         pr_warn("%s: %s: Wrote data from user %d are overflow (!=0~255)\n", __FILE__, __func__, data);
     } 
@@ -125,9 +126,9 @@ static int LED_Bar_init(void) {
 	} 
     
 	// Verify whether the GPIO is valid or not.
-	/*     
+	/*
 	for (int i = 0; i < SIZE; i++){
-        if(gpio_is_valid(leds_gpios[i].gpio)){
+        if(!gpio_is_valid(leds_gpios[i].gpio)){
 			pr_err("%s: %s: GPIO %d is not valid.\n", __FILE__, __func__, leds_gpios[i].gpio);
 			goto r_device;
 		}
