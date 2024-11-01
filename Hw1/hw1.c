@@ -284,6 +284,7 @@ void led_show_price(int price){
         LED_7_seg_writer(str[i]-'0');
         usleep(500000);
     }
+    LED_7_seg_writer(str[i]-'0')+10;
 }
 
 void led_show_dist(int dist){
