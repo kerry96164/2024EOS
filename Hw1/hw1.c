@@ -279,10 +279,10 @@ void led_show_price(int price){
     char str[10] = {};
     snprintf(str, sizeof(str), "%d", price);
     for(int i=0;i<strlen(str);i++){
-        LED_7_seg_writer(str[i]-'0');
-        usleep(500000);
         LED_7_seg_writer(20); // space
         usleep(100000);
+        LED_7_seg_writer(str[i]-'0');
+        usleep(500000);
     }
 }
 
