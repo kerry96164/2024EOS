@@ -10,12 +10,14 @@ RPI_build:
 	$(CROSS_COMPILE)gcc hw2_client.c -o hw2_client
 RPI_clean:
 	rm -f hw2
+	rm -f hw2_client
 
 x86_build:
 	gcc hw2.c -o hw2
 	gcc hw2_client.c -o hw2_client
 x86_clean:
 	rm -f hw2
+	rm -f hw2_client
 
 .PHONY: all clean x86_build x86_clean RPI_build RPI_clean zip
 
