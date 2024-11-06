@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     signal(SIGCHLD, sigchld_handler); // when child process end
 
     if(argc != 2){
-        printf(" Usage: lab5 <Port>");
+        printf(" Usage: lab5 <Port>\n");
         return -1;
     }
     port = atoi(argv[1]);
