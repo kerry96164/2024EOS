@@ -13,7 +13,8 @@
 #include <errno.h>
 
 int sockfd, reply_sockfd;
-int shm_id;
+int shm_id = -1;
+int sem = -1; 
 pid_t pid;
 struct sockaddr_in clientAddr;
 int client_len = sizeof(clientAddr);
@@ -22,7 +23,7 @@ int client_len = sizeof(clientAddr);
 #define SEM_KEY  95843 
 #define BUFFER_SIZE 1024 // socket buffer size
 #define SHM_SIZE sizeof(int)
-int sem; 
+
 
 int P(int s);
 int V(int s);
@@ -177,7 +178,7 @@ int creat_socket(int port) {
 
 void sigint_handler(){
     printf("\n Received interrupt signal (Ctrl-C). \nExiting program safely...\n");
-    exit_fun();
+    exit(0);
 }
 void sigchld_handler(){
     while (waitpid(-1, NULL, WNOHANG) > 0);
@@ -192,15 +193,19 @@ void exit_fun(){
         reply_sockfd = -1;
     }
     printf("Socket closed.\n");
-    
-    if (shm_id >= 0 && pid != 0){
-        shmctl(shm_id, IPC_RMID, NULL); // remove shared memory
+
+    if (shm_id >= 0){
+        if(shmctl(shm_id, IPC_RMID, NULL) >=0 ){ // remove shared memory
+            printf("Removed shared memory %d\n", shm_id);
+        }
     }
-    if (sem >= 0 && pid != 0){
-        semctl(sem, 0, IPC_RMID);       // remove semaphore
+    if (sem >= 0){
+        if (semctl(sem, 0, IPC_RMID) >= 0){ // remove semaphore
+            printf("Removed semaphore %d\n", sem);
+        }
     }
     
-    exit(0);
+    //exit(0);
 }
 
 /* P () - returns 0 if OK; -1 if there was a problem */ 
