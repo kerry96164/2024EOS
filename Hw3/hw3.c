@@ -54,6 +54,7 @@ int order_count = 0;
 sig_atomic_t sec = 0;
 
 void sigint_handler(int signum);
+void zombie_handler(int signum);
 void init_data();
 void send_data(int sockfd, char *data);
 void recv_data(int sockfd, char *data);
@@ -71,6 +72,7 @@ int P(int s, int n);
 int V(int s, int n);
 
 int main(int argc, char* argv[]){
+    signal(SIGCHLD, zombie_handler); // SIGCHLD: child process terminated
     signal(SIGINT, sigint_handler); // SIGINT： Ctrl-C
     atexit(close_handler); // close socket when exit
     if(argc != 2){
@@ -145,7 +147,10 @@ void sigint_handler(int signum) {
     printf("\n Received interrupt signal (Ctrl-C). \nExiting program safely...\n");
     exit(0);
 }
-
+// SIGCHLD: child process terminated
+void zombie_handler(int signum) {
+    while (waitpid(-1, NULL, WNOHANG) > 0);
+}
 // close socket, shared memory, semaphore
 void close_handler(){
     // close socket
