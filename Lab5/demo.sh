@@ -30,3 +30,15 @@ done
 tmux -2 attach-session -t $SESSION
 
 make clean
+
+# 檢查是否有 zombie process
+sleep 2  # 等待所有程序結束
+echo "檢查 zombie process:"
+ps aux | grep defunct | grep -v grep
+
+if [[ $? -eq 0 ]]
+then
+    echo "發現 zombie process。"
+else
+    echo "未發現 zombie process。"
+fi

@@ -29,3 +29,5 @@ tmux send-keys -t 3 "./client 127.0.0.1 $PORT deposit 2 500" C-m
 tmux send-keys -t 4 "./client 127.0.0.1 $PORT withdraw 2 500" C-m
 
 tmux -2 attach-session -t $SESSION
+
+make clean

@@ -22,3 +22,5 @@ tmux send-keys -t 0 "./game $KEY $GUESS" C-m
 tmux send-keys -t 1 "./guess $KEY 100 "
 
 tmux -2 attach-session -t $SESSION
+
+make clean
