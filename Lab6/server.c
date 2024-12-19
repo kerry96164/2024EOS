@@ -199,7 +199,7 @@ void exit_fun(){
             printf("Removed shared memory %d\n", shm_id);
         }
     }
-    if (sem >= 0){
+    if (pid != 0 && sem >= 0){
         if (semctl(sem, 0, IPC_RMID) >= 0){ // remove semaphore
             printf("Removed semaphore %d\n", sem);
         }
