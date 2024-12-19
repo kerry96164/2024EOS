@@ -15,7 +15,7 @@
 int sockfd, reply_sockfd;
 int shm_id = -1;
 int sem = -1; 
-pid_t pid;
+pid_t pid = -1;
 struct sockaddr_in clientAddr;
 int client_len = sizeof(clientAddr);
 
