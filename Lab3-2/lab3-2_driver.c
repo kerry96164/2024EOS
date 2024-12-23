@@ -59,7 +59,7 @@ static ssize_t LED7_read(struct file *fp, char *buf, size_t count, loff_t *fpos)
 
 // user to driver
 static ssize_t LED7_write(struct file *fp,const char *buf, size_t count, loff_t *fpos) {
-	char *rec_buf = kzalloc(sizeof(char),GFP_KERNEL);
+	char *rec_buf = kzalloc(count,GFP_KERNEL);
 	int ret = 0;
 	pr_info("%s: %s: call write\n", __FILE__, __func__);
 	if( (ret = copy_from_user(rec_buf, buf, sizeof(buf))) != 0){

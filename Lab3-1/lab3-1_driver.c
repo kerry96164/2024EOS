@@ -44,9 +44,13 @@ static ssize_t LED_Bar_read(struct file *fp, char *buf, size_t count, loff_t *fp
 
 // user to driver
 static ssize_t LED4_write(struct file *fp,const char *buf, size_t count, loff_t *fpos) {
-	char *rec_buf = kzalloc(sizeof(char),GFP_KERNEL);
+	char *rec_buf = kzalloc(count,GFP_KERNEL);
 	int ret = 0;
 	pr_info("%s: %s: call write\n", __FILE__, __func__);
+	if(count > sizeof(rec_buf)){
+		pr_err("%s: %s: The data is too long\n", __FILE__, __func__);
+		return -EFAULT;
+	}
 	if( (ret = copy_from_user(rec_buf, buf, sizeof(buf))) != 0){
 		pr_err("%s: %s: %d bytes have NOT been copied from user\n", __FILE__, __func__, ret);
 		return -EFAULT; //Bad address
